@@ -1,9 +1,11 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { ApiError } from "./lib/ApiError";
 import { connectDb } from "./lib/db";
 import userModel from "./models/user.model";
 import bcrypt from "bcryptjs";
+
+import type { JWT } from "next-auth/jwt";
+import type { Session, User } from "next-auth";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -20,34 +22,72 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           placeholder: "*****",
         },
       },
+
       async authorize(credentials) {
-        if(!credentials.email || !credentials.password) {
-          throw new ApiError("missing credintials ", 400)
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing credentials");
         }
 
         await connectDb();
 
         const user = await userModel.findOne({
-          email: credentials.email
-        })
+          email: credentials.email,
+        });
 
-        if(!user) {
-          throw new ApiError("User not found please create your account firstly", 400)
+        if (!user) {
+          throw new Error("User not found");
         }
 
-        const compare = await bcrypt.compare(credentials.password as string, user.password)
+        const isMatch = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
 
-        if(!compare) {
-          throw new ApiError("Password is invalid ", 400)
+        if (!isMatch) {
+          throw new Error("Invalid password");
         }
 
         return {
-           id: user._id,
-           name: user.name,
-           email: user.email,
-           role: user.role
-        }
-      }
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        };
+      },
     }),
   ],
+
+  callbacks: {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
+        token.role = user.role;
+      }
+      return token;
+    },
+
+    async session({ session, token }: { session: Session; token: JWT }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/signIn",
+    error: "/signIn",
+  },
+
+  session: {
+    strategy: "jwt",
+    maxAge: 10 * 60 * 60,
+  },
+
+  secret: process.env.JWT_SECRET,
 });

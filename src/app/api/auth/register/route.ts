@@ -18,6 +18,10 @@ export async function POST(req: NextRequest) {
       throw new ApiError("User already exists", 400);
     }
 
+    if(password.length < 6) {
+      throw new ApiError("Password must be atleast 6 char ", 400)
+    }
+
     const hash = await bcrypt.hash(password, 10)
 
     const createdUser = await userModel.create({
@@ -34,6 +38,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
+    console.log("register api error ", error)
     return handleError(error);
   }
 }

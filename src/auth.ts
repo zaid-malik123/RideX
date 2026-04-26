@@ -64,6 +64,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
+
+    async signIn({user, account}) {
+
+      if(account?.provider === "google") {
+        await connectDb();
+
+        const dbUser = await userModel.findOne({email: user.email})
+
+        if(!dbUser) {
+          await userModel.create({
+            name: user.name,
+            email: user.email
+          })
+        }
+
+        user.id = dbUser._id;
+        user.role = dbUser.role
+      }
+
+      return true
+      
+    },
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
         token.id = user.id;

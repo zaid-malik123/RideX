@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 import type { JWT } from "next-auth/jwt";
 import type { Session, User } from "next-auth";
+import Google from "next-auth/providers/google";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -21,6 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           label: "Password",
           placeholder: "*****",
         },
+        
       },
 
       async authorize(credentials) {
@@ -55,6 +57,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         };
       },
     }),
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    })
   ],
 
   callbacks: {

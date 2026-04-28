@@ -1,6 +1,11 @@
 import React from 'react'
 
-const AuthModal = () => {
+type props = {
+  open: boolean,
+  onClose: () => void
+
+}
+const AuthModal = ({open, onClose}: props) => {
   return (
     <div>AuthModal</div>
   )

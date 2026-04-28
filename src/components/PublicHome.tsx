@@ -1,13 +1,16 @@
+"use client"
 import HeroSection from './HeroSection'
 import VechileSlider from './VechileSlider'
 import AuthModal from './AuthModal'
+import { useState } from 'react'
 
 const PublicHome = () => {
+  const [authOpen, setAuthOpen] = useState(false)
   return (
     <>
       <HeroSection/>
       <VechileSlider/>
-      <AuthModal/>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)}/>
     </>
   )
 }

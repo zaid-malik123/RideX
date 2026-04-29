@@ -1,5 +1,5 @@
 "use client";
-import { Lock, Mail, X } from "lucide-react";
+import { Lock, Mail, User, X } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -82,6 +82,33 @@ const AuthModal = ({ open, onClose }: props) => {
                       </div>
 
                       <p className="text-gray-500 mt-6 text-center text-sm">Don't have an account <span onClick={() => setStep("signUp")} className="text-black font-medium hover:underline">SignUp</span></p>
+                    </motion.div>
+                  )}
+                  {step === "signUp" && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                    >
+                      <h1 className="text-xl font-semibold">Create Account</h1>
+
+                      <div className="mt-5 space-y-4">
+                        <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
+                          <User size={18} className="text-gray-500" />
+                          <input className="w-full bg-transparent outline-0 text-sm" type="text" placeholder="FullName" />
+                        </div>
+                        <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
+                          <Mail size={18} className="text-gray-500" />
+                          <input className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
+                        </div>
+                        <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
+                          <Lock size={18} className="text-gray-500" />
+                          <input className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
+                        </div>
+
+                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">SignUp</button>
+                      </div>
+
+                      <p className="text-gray-500 mt-6 text-center text-sm">Already have an account <span onClick={() => setStep("login")} className="text-black font-medium hover:underline">Login</span></p>
                     </motion.div>
                   )}
                 </div>

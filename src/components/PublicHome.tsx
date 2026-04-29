@@ -5,10 +5,10 @@ import AuthModal from './AuthModal'
 import { useState } from 'react'
 
 const PublicHome = () => {
-  const [authOpen, setAuthOpen] = useState(true)
+  const [authOpen, setAuthOpen] = useState(false)
   return (
     <>
-      <HeroSection/>
+      <HeroSection onAuthRequired={() => setAuthOpen(true)}/>
       <VechileSlider/>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)}/>
     </>

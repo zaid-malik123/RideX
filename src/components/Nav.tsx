@@ -4,13 +4,17 @@ import Image from "next/image";
 import logo from "../../public/logo.png";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+import AuthModal from "./AuthModal";
 
 const NavItems = ["Home", "Bookings", "Contact Us", "About Us"];
 
 const Nav = () => {
   const pathName = usePathname();
+  const [authOpen, setAuthOpen] = useState(false)
   return (
-    <motion.div
+    <>
+      <motion.div
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className={`fixed top-3 left-1/2 -translate-x-1/2 w-[94%] md:w-[86%] z-50 rounded-full bg-[#0B0B0B] text-white shadow-xl shadow-[0_15px_50px_rgba(0,0,0,0.7)] py-3`}
@@ -39,11 +43,12 @@ const Nav = () => {
           );
         })}
       </div>
-      <button className="px-4 py-1.5 rounded-full bg-white text-black text-sm">Login</button>
+      <button onClick={() => setAuthOpen(true)} className="px-4 py-1.5 rounded-full bg-white text-black text-sm">Login</button>
       </div>
 
-     
     </motion.div>
+     <AuthModal open={authOpen} onClose={() => setAuthOpen(false)}/>
+    </>
   );
 };
 

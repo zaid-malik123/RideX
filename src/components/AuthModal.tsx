@@ -1,5 +1,6 @@
 "use client";
-import { Lock, Mail, User, X } from "lucide-react";
+import axios from "axios";
+import { Loader2, Lock, Mail, User, X } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
@@ -12,6 +13,33 @@ type props = {
 type StepType = "login" | "signUp" | "otp";
 const AuthModal = ({ open, onClose }: props) => {
   const [step, setStep] = useState<StepType>("login");
+
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleSignUp = async () => {
+    setLoading(true)
+    try {
+      const {data} = await axios.post("/api/auth/register", {
+        name,
+        email,
+        password
+      })
+
+      console.log(data)
+
+      setLoading(false)
+    } catch (error: unknown) {
+      setLoading(false)
+      if(error instanceof Error) {
+        console.log(error)
+      }
+      console.log(error)
+    }
+  }
+
   return (
     <>
       {open && (
@@ -71,17 +99,17 @@ const AuthModal = ({ open, onClose }: props) => {
                       <div className="mt-5 space-y-4">
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Mail size={18} className="text-gray-500" />
-                          <input className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
+                          <input onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Lock size={18} className="text-gray-500" />
-                          <input className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
+                          <input onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
                         </div>
 
                         <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">Login</button>
                       </div>
 
-                      <p className="text-gray-500 mt-6 text-center text-sm">Don't have an account <span onClick={() => setStep("signUp")} className="text-black font-medium hover:underline">SignUp</span></p>
+                      <p className="text-gray-500 mt-6 text-center text-sm">{"Don't have an account"} <span onClick={() => setStep("signUp")} className="text-black font-medium hover:underline">SignUp</span></p>
                     </motion.div>
                   )}
                   {step === "signUp" && (
@@ -94,18 +122,18 @@ const AuthModal = ({ open, onClose }: props) => {
                       <div className="mt-5 space-y-4">
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <User size={18} className="text-gray-500" />
-                          <input className="w-full bg-transparent outline-0 text-sm" type="text" placeholder="FullName" />
+                          <input onChange={(e) => setName(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="text" placeholder="FullName" />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Mail size={18} className="text-gray-500" />
-                          <input className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
+                          <input onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Lock size={18} className="text-gray-500" />
-                          <input className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
+                          <input onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
                         </div>
 
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">SignUp</button>
+                        <button onClick={handleSignUp} className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex justify-center items-center">{loading ? <Loader2/> : "Sing Up" }</button>
                       </div>
 
                       <p className="text-gray-500 mt-6 text-center text-sm">Already have an account <span onClick={() => setStep("login")} className="text-black font-medium hover:underline">Login</span></p>

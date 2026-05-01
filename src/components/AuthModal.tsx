@@ -1,7 +1,8 @@
 "use client";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Loader2, Lock, Mail, User, X } from "lucide-react";
 import { motion } from "motion/react";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -33,12 +34,29 @@ const AuthModal = ({ open, onClose }: props) => {
       setLoading(false)
     } catch (error: unknown) {
       setLoading(false)
-      if(error instanceof Error) {
-        console.log(error)
+      if(error instanceof AxiosError) {
+        console.log(error.response?.data)
       }
-      console.log(error)
+
+      console.log("SignUp Api failed ", error)
     }
   }
+
+  const handleLogin = async () => {
+
+    setLoading(true)
+
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false
+    })
+
+    console.log(res)
+
+    setLoading(false)
+  }
+
 
   return (
     <>
@@ -106,7 +124,7 @@ const AuthModal = ({ open, onClose }: props) => {
                           <input onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
                         </div>
 
-                        <button className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">Login</button>
+                        <button disabled={loading} onClick={handleLogin} className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex items-center justify-center">{loading ? <Loader2/> : "Login" }</button>
                       </div>
 
                       <p className="text-gray-500 mt-6 text-center text-sm">{"Don't have an account"} <span onClick={() => setStep("signUp")} className="text-black font-medium hover:underline">SignUp</span></p>

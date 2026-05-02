@@ -2,9 +2,9 @@
 import axios, { AxiosError } from "axios";
 import { Loader2, Lock, Mail, User, X } from "lucide-react";
 import { motion } from "motion/react";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type props = {
   open: boolean;
@@ -12,50 +12,71 @@ type props = {
 };
 
 type StepType = "login" | "signUp" | "otp";
-  const AuthModal = ({ open, onClose }: props) => {
-  const [step, setStep] = useState<StepType>("login");
-  const [name, setName] = useState("")
-  const [password, setPassword] = useState("")
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(false)
+const AuthModal = ({ open, onClose }: props) => {
+  const [step, setStep] = useState<StepType>("otp");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const inputRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSignUp = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const {data} = await axios.post("/api/auth/register", {
+      const { data } = await axios.post("/api/auth/register", {
         name,
         email,
-        password
-      })
+        password,
+      });
 
-      console.log(data)
+      console.log(data);
 
-      setLoading(false)
+      setLoading(false);
     } catch (error: unknown) {
-      setLoading(false)
-      if(error instanceof AxiosError) {
-        console.log(error.response?.data)
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data);
       }
 
-      console.log("SignUp Api failed ", error)
+      console.log("SignUp Api failed ", error);
     }
-  }
+  };
 
   const handleLogin = async () => {
-
-    setLoading(true)
+    setLoading(true);
 
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false
-    })
+      redirect: false,
+    });
 
-    console.log(res)
+    console.log(res);
 
-    setLoading(false)
+    setLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    await signIn("google");
+  };
+
+  const handleChangeOtp = (idx: number, value: string) => {
+    if (!/^[0-9]*$/.test(value)) return;
+    const updated = [...otp];
+    updated[idx] = value;
+    setOtp(updated);
+    if (value && idx < otp.length - 1) {
+      inputRef.current[idx + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+
+   if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+      inputRef.current[idx - 1]?.focus();
+    }
   }
-
 
   return (
     <>
@@ -89,7 +110,10 @@ type StepType = "login" | "signUp" | "otp";
                   </p>
                 </div>
 
-                <button className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition">
+                <button
+                  onClick={handleGoogleLogin}
+                  className="w-full h-11 rounded-xl border border-black/20 flex items-center justify-center gap-3 text-sm font-semibold hover:bg-black hover:text-white transition"
+                >
                   <Image
                     height={20}
                     width={20}
@@ -116,17 +140,41 @@ type StepType = "login" | "signUp" | "otp";
                       <div className="mt-5 space-y-4">
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Mail size={18} className="text-gray-500" />
-                          <input onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
+                          <input
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-transparent outline-0 text-sm"
+                            type="email"
+                            placeholder="Email"
+                          />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Lock size={18} className="text-gray-500" />
-                          <input onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
+                          <input
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-transparent outline-0 text-sm"
+                            type="password"
+                            placeholder="Password"
+                          />
                         </div>
 
-                        <button disabled={loading} onClick={handleLogin} className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex items-center justify-center">{loading ? <Loader2/> : "Login" }</button>
+                        <button
+                          disabled={loading}
+                          onClick={handleLogin}
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex items-center justify-center"
+                        >
+                          {loading ? <Loader2 /> : "Login"}
+                        </button>
                       </div>
 
-                      <p className="text-gray-500 mt-6 text-center text-sm">{"Don't have an account"} <span onClick={() => setStep("signUp")} className="text-black font-medium hover:underline">SignUp</span></p>
+                      <p className="text-gray-500 mt-6 text-center text-sm">
+                        {"Don't have an account"}{" "}
+                        <span
+                          onClick={() => setStep("signUp")}
+                          className="text-black font-medium hover:underline"
+                        >
+                          SignUp
+                        </span>
+                      </p>
                     </motion.div>
                   )}
                   {step === "signUp" && (
@@ -139,21 +187,77 @@ type StepType = "login" | "signUp" | "otp";
                       <div className="mt-5 space-y-4">
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <User size={18} className="text-gray-500" />
-                          <input onChange={(e) => setName(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="text" placeholder="FullName" />
+                          <input
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-transparent outline-0 text-sm"
+                            type="text"
+                            placeholder="FullName"
+                          />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Mail size={18} className="text-gray-500" />
-                          <input onChange={(e) => setEmail(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="email" placeholder="Email" />
+                          <input
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-transparent outline-0 text-sm"
+                            type="email"
+                            placeholder="Email"
+                          />
                         </div>
                         <div className="flex items-center gap-3 border border-black/20 rounded-xl px-4 py-3">
                           <Lock size={18} className="text-gray-500" />
-                          <input onChange={(e) => setPassword(e.target.value)} className="w-full bg-transparent outline-0 text-sm" type="password" placeholder="Password" />
+                          <input
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-transparent outline-0 text-sm"
+                            type="password"
+                            placeholder="Password"
+                          />
                         </div>
 
-                        <button onClick={handleSignUp} className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex justify-center items-center">{loading ? <Loader2/> : "Sing Up" }</button>
+                        <button
+                          onClick={handleSignUp}
+                          className="w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition flex justify-center items-center"
+                        >
+                          {loading ? <Loader2 /> : "Sing Up"}
+                        </button>
                       </div>
 
-                      <p className="text-gray-500 mt-6 text-center text-sm">Already have an account <span onClick={() => setStep("login")} className="text-black font-medium hover:underline">Login</span></p>
+                      <p className="text-gray-500 mt-6 text-center text-sm">
+                        Already have an account{" "}
+                        <span
+                          onClick={() => setStep("login")}
+                          className="text-black font-medium hover:underline"
+                        >
+                          Login
+                        </span>
+                      </p>
+                    </motion.div>
+                  )}
+                  {step === "otp" && (
+                    <motion.div
+                      key="otp"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                    >
+                      <h1 className="text-xl font-semibold">Verify Email</h1>
+
+                      <div className="mt-6 flex justify-between gap-2">
+                        {otp.map((digit, idx) => (
+                          <input
+                            ref={(el) => {
+                              inputRef.current[idx] = el;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(idx, e)}
+                            onChange={(e) =>
+                              handleChangeOtp(idx, e.target.value)
+                            }
+                            className="w-10 h-12 sm:w-12 text-center text-lg font-semibold rounded-xl bg-white border border-black/20 outline-0"
+                            maxLength={1}
+                            value={digit}
+                            key={idx}
+                          />
+                        ))}
+                      </div>
                     </motion.div>
                   )}
                 </div>

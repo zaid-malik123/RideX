@@ -13,7 +13,7 @@ type props = {
 
 type StepType = "login" | "signUp" | "otp";
 const AuthModal = ({ open, onClose }: props) => {
-  const [step, setStep] = useState<StepType>("otp");
+  const [step, setStep] = useState<StepType>("signUp");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -32,6 +32,27 @@ const AuthModal = ({ open, onClose }: props) => {
 
       console.log(data);
       setStep("otp")
+      setLoading(false);
+    } catch (error: unknown) {
+      setLoading(false);
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data);
+      }
+
+      console.log("SignUp Api failed ", error);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.post("/api/auth/verify-otp", {
+        email,
+        otp: otp.join("")
+      });
+
+      console.log(data);
+      setStep("login")
       setLoading(false);
     } catch (error: unknown) {
       setLoading(false);
@@ -259,7 +280,7 @@ const AuthModal = ({ open, onClose }: props) => {
                         ))}
                       </div>
 
-                      <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">Verify And Create Account</button>
+                      <button onClick={handleVerifyOtp} className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">{loading ? <Loader2 color="white" size={20}/> : "Verify And Create Account"}</button>
                     </motion.div>
                   )}
                 </div>

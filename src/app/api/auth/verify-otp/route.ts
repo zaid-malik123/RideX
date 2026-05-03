@@ -5,7 +5,7 @@ import { ApiResponse } from "@/lib/ApiResponse";
 import { ApiError } from "@/lib/ApiError";
 import userModel from "@/models/user.model";
 
-export async function Post(req: NextRequest) {
+export async function POST(req: NextRequest) {
   await connectDb();
 
   try {

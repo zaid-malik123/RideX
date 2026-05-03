@@ -52,6 +52,7 @@ const AuthModal = ({ open, onClose }: props) => {
       });
 
       console.log(data);
+      setOtp(["", "", "", "", "", ""])
       setStep("login")
       setLoading(false);
     } catch (error: unknown) {

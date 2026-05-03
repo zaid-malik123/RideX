@@ -21,8 +21,6 @@ const AuthModal = ({ open, onClose }: props) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRef = useRef<(HTMLInputElement | null)[]>([]);
 
-  const data = useSession()
-  console.log(data)
   const handleSignUp = async () => {
     setLoading(true);
     try {

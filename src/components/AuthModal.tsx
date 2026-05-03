@@ -2,7 +2,7 @@
 import axios, { AxiosError } from "axios";
 import { Loader2, Lock, Mail, User, X } from "lucide-react";
 import { motion } from "motion/react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
@@ -13,7 +13,7 @@ type props = {
 
 type StepType = "login" | "signUp" | "otp";
 const AuthModal = ({ open, onClose }: props) => {
-  const [step, setStep] = useState<StepType>("signUp");
+  const [step, setStep] = useState<StepType>("login");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -21,6 +21,8 @@ const AuthModal = ({ open, onClose }: props) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRef = useRef<(HTMLInputElement | null)[]>([]);
 
+  const data = useSession()
+  console.log(data)
   const handleSignUp = async () => {
     setLoading(true);
     try {

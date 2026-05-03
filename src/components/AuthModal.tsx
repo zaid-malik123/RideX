@@ -31,7 +31,7 @@ const AuthModal = ({ open, onClose }: props) => {
       });
 
       console.log(data);
-
+      setStep("otp")
       setLoading(false);
     } catch (error: unknown) {
       setLoading(false);
@@ -258,6 +258,8 @@ const AuthModal = ({ open, onClose }: props) => {
                           />
                         ))}
                       </div>
+
+                      <button className="mt-6 w-full h-11 rounded-xl bg-black text-white font-semibold hover:bg-gray-900 transition">Verify And Create Account</button>
                     </motion.div>
                   )}
                 </div>

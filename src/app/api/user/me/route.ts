@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     
       const user = await userModel.findOne({
         email: session.user.email
-      })
+      }).select("-password")
 
       if(!user) {
         throw new ApiError("User is not Authenticated ", 401)

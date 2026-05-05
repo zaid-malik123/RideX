@@ -1,8 +1,13 @@
 "use client"
+import { RootState } from "@/redux/store"
 import { Bike, Bus, Car, Truck } from "lucide-react"
 import {motion} from "motion/react"
+import { useRouter } from "next/navigation"
+import { useSelector } from "react-redux"
 
 const HeroSection = ({onAuthRequired}: {onAuthRequired: () => void}) => {
+  const router = useRouter();
+  const { userData } = useSelector((state: RootState) => state.user)
   return (
     <div className='min-h-screen w-full relative overflow-hidden'>
       <div className='absolute inset-0 bg-cover bg-center ' style={{ backgroundImage: 'url("/heroImage.jpg")' }}/>
@@ -63,7 +68,7 @@ const HeroSection = ({onAuthRequired}: {onAuthRequired: () => void}) => {
         <motion.button
         whileHover={{scale: 1.05}}
         whileDrag={{scale: 0.95}}
-        onClick={onAuthRequired}
+        onClick={() => { !userData ? onAuthRequired(): router.push("/user/book")}}
         className="text-black rounded-full bg-white font-semibold shadow-xl px-10 py-4 mt-12"
         >
           Book Now

@@ -1,7 +1,7 @@
 "use client"
 import { Bike, Bus, Car, CarTaxiFront, ChevronLeft, ChevronRight, Sparkles, Truck } from "lucide-react";
 import {motion} from "motion/react"
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const VECHILE_CATEGORIES = [
   {
@@ -24,6 +24,15 @@ const VECHILE_CATEGORIES = [
 
 const VechileSlider = () => {
   const [hovered, setHovered] = useState<number | null>(null)
+  const sliderRef = useRef<HTMLDivElement>(null)
+
+  const scroll = (direction: "right" | "left") => {
+
+    if(!sliderRef.current) return;
+
+    sliderRef.current.scroll({ left: direction === "left" ? -300: 300})
+
+  }
   return <div className="w-full bg-white py-20 px-4 overflow-hidden">
     <div className="max-w-7xl mx-auto">
       <motion.div
@@ -57,6 +66,7 @@ const VechileSlider = () => {
 
         <div className="hidden sm:flex items-center gap-2">
           <motion.div
+          onClick={() => scroll("left")}
           whileTap={{ scale: 0.88}}
           className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:bg-white disabled:hover:text-zinc-900 disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm"
           >
@@ -64,6 +74,7 @@ const VechileSlider = () => {
           </motion.div>
           
          <motion.div
+          onClick={() => scroll("right")}
           whileTap={{ scale: 0.88}}
           className="w-11 h-11 rounded-2xl border border-zinc-200 bg-white flex items-center justify-center hover:bg-zinc-900 hover:border-zinc-900 hover:text-white disabled:opacity-25 disabled:bg-white disabled:hover:text-zinc-900 disabled:hover:text-zinc-900 disabled:hover:border-zinc-200 transition-all text-zinc-700 shadow-sm"
           >
@@ -73,7 +84,7 @@ const VechileSlider = () => {
       </motion.div>
 
       <div className="relative">
-        <div className="flex gap-5 pt-20 overflow-x-auto scroll-smooth pb-4 px-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+        <div ref={sliderRef} className="flex gap-5 pt-20 overflow-x-auto scroll-smooth pb-4 px-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
 
           {VECHILE_CATEGORIES.map((c,i) => {
             const isHovered = hovered === i;

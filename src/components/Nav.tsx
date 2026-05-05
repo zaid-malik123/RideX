@@ -8,7 +8,7 @@ import { useState } from "react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import { Bike, Car, ChevronRight, LogOut, Truck } from "lucide-react";
+import { Bike, Car, ChevronRight, LogOut, Menu, Truck, X } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { setUserData } from "@/redux/slices/userSlice";
 
@@ -18,14 +18,15 @@ const Nav = () => {
   const pathName = usePathname();
   const [authOpen, setAuthOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { userData } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
 
   const handleLogOut = async () => {
-    await signOut({redirect: false})
-    dispatch(setUserData(null))
-    setProfileOpen(false)
-  }
+    await signOut({ redirect: false });
+    dispatch(setUserData(null));
+    setProfileOpen(false);
+  };
 
   return (
     <>
@@ -58,7 +59,7 @@ const Nav = () => {
               );
             })}
           </div>
-          <div className="flex items-center gap-3 relative">
+          <div className="hidden md:block relative">
             {!userData ? (
               <button
                 onClick={() => setAuthOpen(true)}
@@ -92,13 +93,13 @@ const Nav = () => {
                       <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
                         <div className="flex -space-x-2">
                           <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                            <Bike size={14}/>
+                            <Bike size={14} />
                           </div>
                           <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                            <Car size={14}/>
+                            <Car size={14} />
                           </div>
                           <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                            <Truck size={14}/>
+                            <Truck size={14} />
                           </div>
                         </div>
                         Become a Partner
@@ -106,8 +107,11 @@ const Nav = () => {
                       </div>
                     )}
 
-                    <button onClick={handleLogOut} className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2">
-                      <LogOut/>
+                    <button
+                      onClick={handleLogOut}
+                      className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+                    >
+                      <LogOut />
                       LogOut
                     </button>
                   </div>
@@ -115,8 +119,75 @@ const Nav = () => {
               )}
             </AnimatePresence>
           </div>
+
+          <div className=" md:hidden relative flex items-center gap-3">
+            {!userData ? (
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="px-4 py-1.5 rounded-full bg-white text-black text-sm"
+              >
+                Login
+              </button>
+            ) : (
+              <button
+                onClick={() => setProfileOpen((p) => !p)}
+                className="w-11 h-11 rounded-full bg-white text-black text-xl font-bold"
+              >
+                {userData.name.charAt(0).toLowerCase()}
+              </button>
+            )}
+
+            <button onClick={() => setMenuOpen((p) => !p)}>
+              {menuOpen ? <X size={30} /> : <Menu size={30} />}
+            </button>
+          </div>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+              className="fixed inset-0 bg-black z-30 md:hidden"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="fixed top-[85px] left-1/2 -translate-x-1/2 w-[92%]
+            bg-[#0B0B0B] rounded-2xl shadow-2xl z-40 md:hidden overflow-hidden
+            "
+            >
+              <div className="flex flex-col divide-y divide-white/10">
+                {NavItems.map((item, idx) => {
+                  let href;
+                  if (item === "Home") {
+                    href = "/";
+                  } else {
+                    href = `/${item.toLowerCase()}`;
+                  }
+                  const active = href == pathName;
+                  return (
+                    <Link
+                      className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                      key={idx}
+                      href={href}
+                    >
+                      {item}
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );

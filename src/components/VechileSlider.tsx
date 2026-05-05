@@ -113,6 +113,22 @@ const VechileSlider = () => {
                       <c.Icon size={24} strokeWidth={1.5}/>
                     </motion.div>
                   </motion.div>
+
+                  <motion.h3
+                  animate={{ color: isHovered ? "#ffffff" : "#09090b"}}
+                  transition={{ duration: 0.2}}
+                  className="text-lg font-black tracking-tight leading-none mb-2"
+                  >
+                    {c.title}
+                  </motion.h3>
+
+                  <motion.p
+                  animate={{ color: isHovered ? "rgba(255, 255, 255, 0.5)" : "#a1a1aa"}}
+                  transition={{ duration: 0.2}}
+                  className="text-xs font-medium leading-relaxed"
+                  >
+                    {c.desc}
+                  </motion.p>
                 </motion.div>
               </motion.div>
             )

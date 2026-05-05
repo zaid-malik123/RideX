@@ -146,6 +146,26 @@ const VechileSlider = () => {
           })}
         </div>
       </div>
+
+      <motion.div
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{delay: 0.7}}
+      className="flex items-center gap-6 mt-8 pt-6 border-t border-zinc-100"
+      >
+        {
+          [
+            { num: "6+", label: "Categories"},
+            { num: "10+", label: "Vechile Types"},
+            { num: "24/7", label: "Availability"},
+          ].map((d,i) => (
+            <div key={i} className="flex items-center gap-3">
+              <p className="text-zinc-900 text-lg font-black tracking-tight">{d.num}</p>
+              <p className="text-zinc-400 text-xs font-medium">{d.label}</p>
+            </div>
+          ))
+        }
+      </motion.div>
     </div>
   </div>;
 };

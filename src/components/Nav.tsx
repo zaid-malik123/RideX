@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import logo from "../../public/logo.png";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +21,7 @@ const Nav = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { userData } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
+  const router = useRouter()
 
   const handleLogOut = async () => {
     await signOut({ redirect: false });
@@ -90,7 +91,7 @@ const Nav = () => {
                       {userData?.role}
                     </p>
                     {userData?.role != "partner" && (
-                      <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
+                      <div onClick={() => router.push("/partner/onboarding/vechile")} className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
                         <div className="flex -space-x-2">
                           <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                             <Bike size={14} />
@@ -212,7 +213,7 @@ const Nav = () => {
                   {userData?.role}
                 </p>
                 {userData?.role != "partner" && (
-                  <div className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
+                  <div onClick={() => router.push("/partner/onboarding/vechile")} className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl">
                     <div className="flex -space-x-2">
                       <div className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
                         <Bike size={14} />

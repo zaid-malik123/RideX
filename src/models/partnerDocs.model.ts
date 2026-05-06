@@ -41,8 +41,8 @@ const partnerDocsSchema = new mongoose.Schema<IPartnerDocs>(
   { timestamps: true }
 );
 
-const PartnerDocs =
+const partnerDocsModel =
   mongoose.models.PartnerDocs ||
   mongoose.model<IPartnerDocs>("PartnerDocs", partnerDocsSchema);
 
-export default PartnerDocs;
+export default partnerDocsModel;

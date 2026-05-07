@@ -14,7 +14,9 @@ const VECHILE = [
 
 const VechileOnBoarding = () => {
   const router = useRouter();
-  const [vehicleType, setVehicleType] = useState("")
+  const [vehicleType, setVehicleType] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -36,43 +38,89 @@ const VechileOnBoarding = () => {
             Add Your Vehicle Information
           </p>
           <div className="mt-8 space-y-6">
+            <div>
+              <p className="text-xs font-semibold text-gray-500 mb-3">
+                Vehicle Type
+              </p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {VECHILE.map((v, i) => {
+                  const Icon = v.icon;
+                  const isActive = vehicleType === v.id;
+                  return (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => setVehicleType(v.id)}
+                      className={`rounded-2xl border p-4 flex flex-col items-center gap-2 transition 
+                            ${isActive ? "bg-black text-white border-black" : "border-gray-200 hover:border-black"}    
+                            `}
+                      key={i}
+                    >
+                      <div
+                        className={`w-11 h-11 rounded-full flex justify-center items-center
+                                ${
+                                  isActive
+                                    ? "bg-white text-black"
+                                    : "bg-black text-white"
+                                }    
+                                `}
+                      >
+                        <Icon />
+                      </div>
+
+                      <div className="text-sm font-semibold">{v.label}</div>
+
+                      <p
+                        className={`text-xs ${isActive ? "text-gray-300" : "text-gray-500"}`}
+                      >
+                        {v.desc}
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
 
             <div>
-                <p className="text-xs font-semibold text-gray-500 mb-3">Vehicle Type</p>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {VECHILE.map((v,i) => {
-                        const Icon = v.icon;
-                        const isActive = vehicleType === v.id;
-                        return (
-                            <motion.div
-                            whileHover={{ scale: 1.05}}
-                            whileTap={{ scale: 0.96}}
-                            onClick={() => setVehicleType(v.id)}
-                            className={`rounded-2xl border p-4 flex flex-col items-center gap-2 transition 
-                            ${isActive ? "bg-black text-white border-black": "border-gray-200 hover:border-black"}    
-                            `}
-                            key={i}>
-
-                                <div className={`w-11 h-11 rounded-full flex justify-center items-center
-                                ${
-                                    isActive ? "bg-white text-black" : "bg-black text-white"
-                                    }    
-                                `}>
-                                    <Icon/>
-                                </div>
-
-                                <div className="text-sm font-semibold">
-                                    {v.label}
-                                </div>
-
-                                <p className={`text-xs ${isActive ? "text-gray-300" : "text-gray-500"}`}>{v.desc}</p>
-
-                            </motion.div>
-                        )
-                    })}
-                </div>
+              <label
+                className="block text-left text-xs font-semibold text-gray-500"
+                htmlFor="vn"
+              >
+                Vehicle Number
+              </label>
+              <input
+                value={vehicleNumber}
+                onChange={(e) => setVehicleNumber(e.target.value)}
+                placeholder="DL 01 AB 1234"
+                className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-0 focus:border-black transition"
+                type="text"
+                id="vn"
+              />
             </div>
+
+            <div>
+              <label
+                className="block text-left text-xs font-semibold text-gray-500"
+                htmlFor="vm"
+              >
+                Vehicle Model
+              </label>
+              <input
+                value={vehicleModel}
+                onChange={(e) => setVehicleModel(e.target.value)}
+                placeholder="Tata Ace"
+                className="mt-2 w-full border-b border-gray-300 pb-2 text-sm focus:outline-0 focus:border-black transition"
+                type="text"
+                id="vm"
+              />
+            </div>
+
+            <motion.button
+            whileHover={{ scale: 1.02}}
+            whileTap={{ scale: 0.98}}
+            className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+            >Continue</motion.button>
           </div>
         </div>
       </motion.div>

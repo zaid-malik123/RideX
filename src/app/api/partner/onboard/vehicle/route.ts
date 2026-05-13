@@ -4,6 +4,7 @@ import { ApiResponse } from "@/lib/ApiResponse";
 import { connectDb } from "@/lib/db";
 import { handleError } from "@/lib/handleError";
 import userModel from "@/models/user.model";
+import vehicleModel from "@/models/vehicle.model";
 import { NextRequest } from "next/server";
 
 const VEHICLE_NUMBER_REGEX = /^[A-Z]{2}[ -]?\d{1,2}[ -]?[A-Z]{1,3}[ -]?\d{4}$/i;
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       vehicleModel,
     });
 
-    if(user.partnerOnBoardingSteps < 1) {
+    if (user.partnerOnBoardingSteps < 1) {
       user.partnerOnBoardingSteps = 1;
     }
 
@@ -80,10 +81,44 @@ export async function POST(req: NextRequest) {
       data: vehicle,
       status: 201,
     });
+  } catch (error) {
+    console.log("partner/onboard/vehicle(post) api error", error);
+    return handleError(error);
+  }
+}
 
+export async function GET(req: NextRequest) {
+  connectDb();
+
+  try {
+    const session = await auth();
+
+    if (!session || !session.user) {
+      throw new ApiError("User is not Authenticated ", 401);
+    }
+
+    const user = await userModel.findById(session.user.id);
+
+    if (!user) {
+      throw new ApiError("User is not found ", 401);
+    }
+
+    const vehicle = await vehicleModel.findOne({
+      owner: user._id,
+    });
+
+    if(!vehicle) {
+      throw new ApiError("Vehicle not found", 401)
+    }
+
+    return ApiResponse({
+      success: true,
+      message: "Vehicle find",
+      data: vehicle,
+    });
 
   } catch (error) {
-    console.log("user/me api error", error);
+    console.log("partner/onboard/vehicle(get) api error", error);
     return handleError(error);
   }
 }

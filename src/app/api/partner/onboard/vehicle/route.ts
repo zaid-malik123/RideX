@@ -37,11 +37,11 @@ export async function POST(req: NextRequest) {
     const vehicleNumber = number.toUpperCase();
 
     const duplicate = await vehicleModel.findOne({
-        number: vehicleNumber
-    })
+      number: vehicleNumber,
+    });
 
-    if(duplicate) {
-       throw new ApiError("Duplicate Vehicle Number ", 401); 
+    if (duplicate) {
+      throw new ApiError("Duplicate Vehicle Number ", 401);
     }
 
     let vehicle = await vehicleModel.findOne({
@@ -59,20 +59,29 @@ export async function POST(req: NextRequest) {
         message: "Vehicle Updated",
         data: vehicle,
       });
-    } else {
-      vehicle = await vehicleModel.create({
-        type,
-        number: vehicleNumber,
-        vehicleModel,
-      });
-
-      return ApiResponse({
-        success: true,
-        message: "Vehicle Created",
-        data: vehicle,
-        status: 201
-      });
     }
+
+    vehicle = await vehicleModel.create({
+      type,
+      number: vehicleNumber,
+      vehicleModel,
+    });
+
+    if(user.partnerOnBoardingSteps < 1) {
+      user.partnerOnBoardingSteps = 1;
+    }
+
+    user.role = "partner";
+    await user.save();
+
+    return ApiResponse({
+      success: true,
+      message: "Vehicle Created",
+      data: vehicle,
+      status: 201,
+    });
+
+
   } catch (error) {
     console.log("user/me api error", error);
     return handleError(error);

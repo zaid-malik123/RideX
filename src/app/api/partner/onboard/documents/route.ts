@@ -64,6 +64,11 @@ export async function POST(req: NextRequest) {
       },
     );
 
+    if (user.partnerOnBoardingSteps < 2) {
+      user.partnerOnBoardingSteps = 2;
+      await user.save();
+    }
+
     return ApiResponse({
       success: true,
       message: "Documents uploaded successfully",
@@ -74,3 +79,41 @@ export async function POST(req: NextRequest) {
     return handleError(error);
   }
 }
+
+// export async function GET(req: NextRequest) {
+//   await connectDb();
+
+//   try {
+
+//     const session = await auth();
+
+//     if (!session || !session.user) {
+//       throw new ApiError("User is not Authenticated", 401);
+//     }
+
+//     const user = await userModel.findById(session.user.id);
+
+//     if (!user) {
+//       throw new ApiError("User is not found", 401);
+//     }
+
+
+//     const document = await partnerDocsModel.findById({
+//         owner: user._id
+//     })
+
+//     if(!document) {
+//         throw new ApiError("Documents not found", 401);
+//     }
+
+//     return ApiResponse({
+//       success: true,
+//       message: "Documents fetched successfully",
+//       data: document,
+//     });
+
+//   } catch (error) {
+//     console.log("partner/onboard/document(post) api error", error);
+//     return handleError(error);
+//   }
+// }

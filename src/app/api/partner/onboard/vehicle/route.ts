@@ -4,56 +4,63 @@ import { ApiResponse } from "@/lib/ApiResponse";
 import { connectDb } from "@/lib/db";
 import { handleError } from "@/lib/handleError";
 import userModel from "@/models/user.model";
-import vehicleModel from "@/models/vehicle.model";
+import Vehicle from "@/models/vehicle.model";
 import { NextRequest } from "next/server";
 
-const VEHICLE_NUMBER_REGEX = /^[A-Z]{2}[ -]?\d{1,2}[ -]?[A-Z]{1,3}[ -]?\d{4}$/i;
+const VEHICLE_NUMBER_REGEX =
+  /^[A-Z]{2}[ -]?\d{1,2}[ -]?[A-Z]{1,3}[ -]?\d{4}$/i;
 
 export async function POST(req: NextRequest) {
-  connectDb();
+  await connectDb();
 
   try {
     const session = await auth();
 
     if (!session || !session.user) {
-      throw new ApiError("User is not Authenticated ", 401);
+      throw new ApiError("User is not Authenticated", 401);
     }
 
     const user = await userModel.findById(session.user.id);
 
     if (!user) {
-      throw new ApiError("User is not found ", 401);
+      throw new ApiError("User is not found", 404);
     }
 
-    const { type, number, vehicleModel } = await req.json();
+    // renamed variable to avoid conflict
+    const { type, number, vehicleModel: modelName } = await req.json();
 
-    if (!type || !number || !vehicleModel) {
-      throw new ApiError("All fields are required", 401);
+    if (!type || !number || !modelName) {
+      throw new ApiError("All fields are required", 400);
     }
 
-    if (VEHICLE_NUMBER_REGEX.test(number)) {
-      throw new ApiError("Invalid Vehicle Number", 401);
+    if (!VEHICLE_NUMBER_REGEX.test(number)) {
+      throw new ApiError("Invalid Vehicle Number", 400);
     }
 
     const vehicleNumber = number.toUpperCase();
 
-    const duplicate = await vehicleModel.findOne({
+    // duplicate check
+    const duplicate = await Vehicle.findOne({
       number: vehicleNumber,
+      owner: { $ne: user._id }, // dusre user ka same number na ho
     });
 
     if (duplicate) {
-      throw new ApiError("Duplicate Vehicle Number ", 401);
+      throw new ApiError("Duplicate Vehicle Number", 400);
     }
 
-    let vehicle = await vehicleModel.findOne({
-      owner: session.user.id,
+    // existing vehicle
+    let vehicle = await Vehicle.findOne({
+      owner: user._id,
     });
 
+    // update
     if (vehicle) {
       vehicle.type = type;
       vehicle.number = vehicleNumber;
-      vehicle.vehicleModel = vehicleModel;
-      await vehicleModel.save();
+      vehicle.vehicleModel = modelName;
+
+      await vehicle.save();
 
       return ApiResponse({
         success: true,
@@ -62,10 +69,12 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    vehicle = await vehicleModel.create({
+    // create
+    vehicle = await Vehicle.create({
+      owner: user._id,
       type,
       number: vehicleNumber,
-      vehicleModel,
+      vehicleModel: modelName,
     });
 
     if (user.partnerOnBoardingSteps < 1) {
@@ -73,6 +82,7 @@ export async function POST(req: NextRequest) {
     }
 
     user.role = "partner";
+
     await user.save();
 
     return ApiResponse({
@@ -81,6 +91,7 @@ export async function POST(req: NextRequest) {
       data: vehicle,
       status: 201,
     });
+
   } catch (error) {
     console.log("partner/onboard/vehicle(post) api error", error);
     return handleError(error);
@@ -88,32 +99,32 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  connectDb();
+  await connectDb();
 
   try {
     const session = await auth();
 
     if (!session || !session.user) {
-      throw new ApiError("User is not Authenticated ", 401);
+      throw new ApiError("User is not Authenticated", 401);
     }
 
     const user = await userModel.findById(session.user.id);
 
     if (!user) {
-      throw new ApiError("User is not found ", 401);
+      throw new ApiError("User is not found", 404);
     }
 
-    const vehicle = await vehicleModel.findOne({
+    const vehicle = await Vehicle.findOne({
       owner: user._id,
     });
 
-    if(!vehicle) {
-      throw new ApiError("Vehicle not found", 401)
+    if (!vehicle) {
+      throw new ApiError("Vehicle not found", 404);
     }
 
     return ApiResponse({
       success: true,
-      message: "Vehicle find",
+      message: "Vehicle found",
       data: vehicle,
     });
 

@@ -71,7 +71,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await connectDb();
 
         const dbUser = await userModel.findOne({email: user.email})
-
+    
         if(!dbUser) {
           await userModel.create({
             name: user.name,
@@ -79,7 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           })
         }
 
-        user.id = dbUser._id;
+        user.id = dbUser._id.toString();
         user.role = dbUser.role
       }
 
@@ -88,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id.toString();
         token.name = user.name;
         token.email = user.email;
         token.role = user.role;
@@ -98,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        session.user.id = token.id as string;
+        session.user.id = token.id?.toString() as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.role = token.role as string;

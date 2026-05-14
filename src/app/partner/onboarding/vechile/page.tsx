@@ -1,6 +1,7 @@
 "use client";
+import axios, { AxiosError } from "axios";
 import { ArrowLeft, Bike, Car, Package, Truck } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, number } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -17,6 +18,24 @@ const VechileOnBoarding = () => {
   const [vehicleType, setVehicleType] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [vehicleModel, setVehicleModel] = useState("");
+
+  const handleVehicle = async () => {
+    try {
+      const { data } = await axios.post("/api/partner/onboard/vehicle", {
+        type: vehicleType,
+        number: vehicleNumber.toUpperCase(),
+        vehicleModel,
+      });
+
+      console.log(data);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error.response?.data);
+      }
+
+      console.log("Vehicle Api failed ", error);
+    }
+  };
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4">
       <motion.div
@@ -117,10 +136,13 @@ const VechileOnBoarding = () => {
             </div>
 
             <motion.button
-            whileHover={{ scale: 1.02}}
-            whileTap={{ scale: 0.98}}
-            className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
-            >Continue</motion.button>
+              onClick={handleVehicle}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-8 w-full h-14 rounded-2xl bg-black text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-40 transition"
+            >
+              Continue
+            </motion.button>
           </div>
         </div>
       </motion.div>
